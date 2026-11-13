@@ -281,3 +281,37 @@ def test_game_speedometer_rendering_and_state_resets():
     assert game.ball.current_speed > initial_speed
     game.restart()
     assert abs(game.ball.current_speed - initial_speed) < 1e-5
+
+
+def test_game_paddle1_ball_collision():
+    """Verify that the ball collides with player 1 (left paddle) and reverses direction."""
+    game = PongGame(headless=True, sound_enabled=False)
+    game.start_game()
+
+    # Position ball moving leftward directly at paddle1's front face
+    game.ball.x = game.paddle1.rect.right - 2
+    game.ball.y = game.paddle1.rect.centery - (game.ball.size / 2)
+    game.ball.speed_x = -abs(game.ball.speed_x)
+
+    game.update()
+
+    # The ball should reverse horizontal direction and not score a point
+    assert game.ball.speed_x > 0
+    assert game.score.player2_score == 0
+
+
+def test_game_paddle2_ball_collision():
+    """Verify that the ball collides with player 2 (right paddle) and reverses direction."""
+    game = PongGame(headless=True, sound_enabled=False)
+    game.start_game()
+
+    # Position ball moving rightward directly at paddle2's front face
+    game.ball.x = game.paddle2.rect.left - game.ball.size + 2
+    game.ball.y = game.paddle2.rect.centery - (game.ball.size / 2)
+    game.ball.speed_x = abs(game.ball.speed_x)
+
+    game.update()
+
+    # The ball should reverse horizontal direction and not score a point
+    assert game.ball.speed_x < 0
+    assert game.score.player1_score == 0
