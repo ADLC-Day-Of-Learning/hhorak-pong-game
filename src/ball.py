@@ -7,6 +7,7 @@ import math
 import pygame
 
 from src.constants import (
+    BALL_COLOR,
     BALL_INITIAL_SPEED_X,
     BALL_INITIAL_SPEED_Y,
     BALL_MAX_SPEED,
@@ -14,7 +15,6 @@ from src.constants import (
     BALL_SPEED_INCREMENT,
     SCREEN_HEIGHT,
     SCREEN_WIDTH,
-    WHITE,
 )
 from src.paddle import Paddle
 
@@ -31,6 +31,7 @@ class Ball:
         initial_speed_y: float = BALL_INITIAL_SPEED_Y,
         speed_increment: float = BALL_SPEED_INCREMENT,
         max_speed: float = BALL_MAX_SPEED,
+        color: tuple[int, int, int] = BALL_COLOR,
     ):
         self.screen_width = screen_width
         self.screen_height = screen_height
@@ -39,6 +40,7 @@ class Ball:
         self.initial_speed_y = float(initial_speed_y)
         self.speed_increment = float(speed_increment)
         self.max_speed = float(max_speed)
+        self.color = color
 
         self.x = (self.screen_width - self.size) / 2.0
         self.y = (self.screen_height - self.size) / 2.0
@@ -151,4 +153,5 @@ class Ball:
 
     def draw(self, surface: pygame.Surface) -> None:
         """Render the ball onto the target surface."""
-        pygame.draw.rect(surface, WHITE, self.rect)
+        radius = max(1, self.size // 2)
+        pygame.draw.circle(surface, self.color, self.rect.center, radius)

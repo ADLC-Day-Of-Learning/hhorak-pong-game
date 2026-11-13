@@ -2,10 +2,16 @@
 
 import math
 
+import pygame
+
 from src.ball import Ball
 from src.constants import (
+    BALL_COLOR,
     BALL_INITIAL_SPEED_X,
     BALL_INITIAL_SPEED_Y,
+    BALL_SIZE,
+    WHITE,
+    YELLOW,
 )
 from src.paddle import Paddle
 
@@ -19,6 +25,7 @@ def test_ball_initialization():
     assert ball.y == (600 - 15) / 2.0
     assert ball.speed_x == BALL_INITIAL_SPEED_X
     assert ball.speed_y == BALL_INITIAL_SPEED_Y
+    assert ball.color == BALL_COLOR
 
 
 def test_ball_movement():
@@ -223,3 +230,46 @@ def test_ball_current_speed_paddle_collision_and_reset():
     # Resetting the ball restores the initial scalar speed
     ball.reset()
     assert math.isclose(ball.current_speed, expected_initial, rel_tol=1e-5)
+
+
+def test_ball_default_initialization():
+    """Verify default Ball initialization attributes including smaller size and yellow color."""
+    ball = Ball()
+    assert ball.size == BALL_SIZE
+    assert ball.size == 12
+    assert ball.color == YELLOW
+
+
+def test_ball_draw_renders_circle():
+    """Verify that Ball.draw renders a circle into the bounding box."""
+    surface = pygame.Surface((50, 50))
+    surface.fill((0, 0, 0))
+    ball = Ball(size=20)
+    ball.x, ball.y = 10, 10
+
+    ball.draw(surface)
+
+    center_x, center_y = ball.rect.center
+    # Center pixel must be painted with the ball color (YELLOW)
+    assert surface.get_at((center_x, center_y))[:3] == YELLOW
+    # Corners of the bounding box (outside circle radius) should remain background (0, 0, 0)
+    assert surface.get_at((ball.rect.left, ball.rect.top))[:3] == (0, 0, 0)
+    assert surface.get_at((ball.rect.right - 1, ball.rect.top))[:3] == (0, 0, 0)
+    assert surface.get_at((ball.rect.left, ball.rect.bottom - 1))[:3] == (0, 0, 0)
+    assert surface.get_at((ball.rect.right - 1, ball.rect.bottom - 1))[:3] == (0, 0, 0)
+
+
+def test_ball_custom_color():
+    """Verify ball can be initialized with custom color and supports dynamic color updates."""
+    surface = pygame.Surface((50, 50))
+    ball = Ball(size=20, color=WHITE)
+    ball.x, ball.y = 10, 10
+    assert ball.color == WHITE
+    ball.draw(surface)
+    center_x, center_y = ball.rect.center
+    assert surface.get_at((center_x, center_y))[:3] == WHITE
+
+    # Change color dynamically
+    ball.color = (0, 255, 255)
+    ball.draw(surface)
+    assert surface.get_at((center_x, center_y))[:3] == (0, 255, 255)
